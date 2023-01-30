@@ -78,24 +78,22 @@ function full_bench()
     arrs = Vector{Vector{Int64}}()
     for i in 1:n
       p = "data/test"*string(i)*".bin"
-      h = open(p, "w+")
-      r = sort!(rand(Int64, 20_000))
-      write(h, r)
-      close(h)
+      #h = open(p, "w+")
+      #r = sort!(rand(Int64, 100_000_000))
+      #write(h, r)
+      #close(h)
       push!(files, p)
-      push!(arrs, r)
+      #push!(arrs, r)
     end
 
     # Run mmap merge sort 
     out_vector = Vector{Int64}(undef, n)
     #@time kway_merge(arrs, out_vector)
     #@btime kway_heap_merge($arrs, $out_vector)
-
-    files = ["data1.bin", "data2.bin", "data3.bin"]
-    kway_mmap_merge(files, "out.bin", Int64)
-    kway_disk_merge(files, "out.bin", 10_000, Int64)
-    kway_mmap_merge(files, "out.bin", Int64, use_heap=true)
-    kway_disk_merge(files, "out.bin", 10_000, Int64, use_heap=true)
+    kway_mmap_merge(files, "data/mmap_res.bin", Int64)
+    #@btime kway_disk_merge($files, "data/disko_res.bin", 10_000, Int64)
+    #@btime kway_mmap_merge($files, "data/mmap_res.bin", Int64, use_heap=true)
+    #@btime kway_disk_merge($files, "data/disko_res.bin", 10_000, Int64, use_heap=true)
 
 
 end

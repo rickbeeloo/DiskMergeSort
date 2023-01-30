@@ -26,3 +26,6 @@ here `10_000` is the buffer size passed to [Disko](https://github.com/rickbeeloo
 
 This benchmark was for 5 files with `20000` integers each.
 Probably disko will improve when I improve that :) 
+
+#### How to use 
+- MAJOR: fix `indices` alloc
