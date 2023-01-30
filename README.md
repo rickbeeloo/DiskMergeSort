@@ -1,6 +1,6 @@
 ## DISKMERGE - mergesort disk arrays
 
-**Own usage**; this is far from fully implemented but currently supports [k-way merge sorts ](https://en.wikipedia.org/wiki/K-way_merge_algorithm "k-way merge sorts ")from `mmap`s and `diskVectors`(from [Disko](https://github.com/rickbeeloo/Disko)). Aside from a naive k-way merge this also allows merge sort using a [binaryheap](https://en.wikipedia.org/wiki/K-way_merge_algorithm#Heap "binaryheap"). Technically this should be faster, however it does not seem to outperform naive k-way sort - at least not for 
+**Own usage**; this is far from fully implemented but currently supports [k-way merge sorts ](https://en.wikipedia.org/wiki/K-way_merge_algorithm "k-way merge sorts ")from `mmap`s and `diskVectors`(from [Disko](https://github.com/rickbeeloo/Disko)). Aside from a naive k-way merge this also allows merge sort using a [binaryheap](https://en.wikipedia.org/wiki/K-way_merge_algorithm#Heap "binaryheap"). Technically this should be faster, however it does not seem to outperform naive k-way sort - at least not for the benchmark below
 
 `add https://github.com/rickbeeloo/DiskMergeSort`
 
