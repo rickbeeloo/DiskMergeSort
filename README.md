@@ -16,6 +16,7 @@
 ```
 here `10_000` is the buffer size passed to [Disko](https://github.com/rickbeeloo/Disko). `use_heap` is false by default, when true this will use the Julia minBinaryHeap. 
 
+
 | Function  | @btime result  |
 | ------------ | ------------ |
 | mmap  |  1.005 ms (108 allocations: 788.77 KiB)  |
@@ -23,4 +24,5 @@ here `10_000` is the buffer size passed to [Disko](https://github.com/rickbeeloo
 | mmap (heap)  |   2.603 ms (108 allocations: 7.73 KiB)  |
 | disko (heap)  |  2.709 ms (104 allocations: 838.42 KiB) |
 
+This benchmark was for 5 files with `20000` integers each.
 Probably disko will improve when I improve that :) 
