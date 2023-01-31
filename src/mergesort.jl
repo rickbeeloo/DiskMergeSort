@@ -99,3 +99,68 @@ function kway_disk_merge(files::Vector{String}, output_file::String, buffer_size
     close(out_handle)
 end
 
+
+function kway_frequency_merge(files::Vector{String}, tmp_dir::String, type::DataType ; freq_cut_off::Int = 100 )
+    # When merging two arrays we can use the fact that these are sorted to deduplicate arrays. Instead of deduplicating we will use 
+    # a frequency cut_off. We either create a big array that in the end will hold all elements. Or add another saturated count 
+    # array, in this case of type Uint8
+
+    # We will write to the output sequentially so we can just mmap it 
+    isdir(tmp_dir) || error("This is not a dir")
+    freq_cut_off <= typemax(UInt8)
+
+    # Mmap the input 
+    sizes = [Int64(filesize(f)/sizeof(type)) for f in files]
+    handles = [open(f,"r") for f in files]
+    maps = @inbounds [mmap(handles[i], Vector{type}, sizes[i]) for i in eachindex(files)]
+
+    # Create the output vectors
+    number_handle = open(joinpath(tmp_dir, "numbers.bin"), "w+")
+    freq_handle = open(joinpath(tmp_dir, "freq.bin"), "w+")
+    total_size = sum(sizes)
+    number_map = mmap(number_handle, Vector{Int64}, total_size)
+    freq_map = mmap(freq_handle, Vector{UInt8}, total_size)
+
+    # Do the merge sort
+    indices =  ones(Int64, length(maps)) 
+    type_max = @inbounds typemax(eltype(maps[1]))
+    output_idx = 1
+
+    @inbounds while true
+        # Find the next smallest element across all input vectors
+        min_val = type_max
+        min_vec_idx = 0
+
+        for i in eachindex(maps)
+            if indices[i] <= length(maps[i]) && maps[i][indices[i]] < min_val
+                min_val = maps[i][indices[i]]
+                min_vec_idx = i
+            end
+
+        end
+        
+        # We are done 
+        min_val == type_max && break
+        
+        # Add the smallest element to the output vector
+        if number_map[output_idx-1] == min_val
+            # Increase the freq val 
+            freq_map[output_idx-1] +=1
+            if freq_map[output_idx-1] > freq_cut_off
+                output_idx -= 1 # Move back slot
+            end
+        else 
+            number_map[output_idx] = min_val
+            freq_map[output_idx] = 1
+            output_idx += 1
+        end
+
+        # Increment the index for the input vector that contained the smallest element
+        indices[min_vec_idx] += 1
+    end
+
+    # In case we didn't fill all, or should exclude the last element
+    # return a view 
+
+    return view(number_map, 1:output_idx-1), view(freq_map,1:output_idx-1)
+end
