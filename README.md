@@ -12,10 +12,16 @@
     kway_mmap_merge(files, "out.bin", Int64)
     kway_disk_merge(files, "out.bin", 10_000, Int64)
     kway_mmap_merge(files, "out.bin", Int64, use_heap=true)
-    kway_disk_merge(files, "out.bin", 10_000, Int64, use_heap=true)
+    kway_disk_merge(files, "out.bin", 10_000, Int64, use_heap=true) 
+    kway_frequency_merge(files, "tmp/", Int64, freq_cut_off = 100 )
 ```
-here `10_000` is the buffer size passed to [Disko](https://github.com/rickbeeloo/Disko). `use_heap` is false by default, when true this will use the Julia minBinaryHeap. 
+here `10_000` is the buffer size passed to [Disko](https://github.com/rickbeeloo/Disko). `use_heap` is false by default, when true this will use the Julia minBinaryHeap. `kway_frequency_merge` is a **special implementation** as I discussed [here](https://cs.stackexchange.com/questions/157084/data-structure-to-estimate-the-frequency-of-low-frequency-elements "here"). It uses a merge sort to find low frequency numbers in a collection of vectors. In other words, it filters out numbers with a frequency `<cut-off` while merging the arrays. This is much more cache-friendly than hashing, like hashmap counters, to achieve the same result. 
 
+
+----
+#### Some timings 
+This benchmark was for 5 files with `20000` integers each.
+Probably disko will improve when I improve that :) 
 
 | Function  | @btime result  |
 | ------------ | ------------ |
@@ -24,8 +30,5 @@ here `10_000` is the buffer size passed to [Disko](https://github.com/rickbeeloo
 | mmap (heap)  |   2.603 ms (108 allocations: 7.73 KiB)  |
 | disko (heap)  |  2.709 ms (104 allocations: 838.42 KiB) |
 
-This benchmark was for 5 files with `20000` integers each.
-Probably disko will improve when I improve that :) 
 
-#### TODO
-- MAJOR: fix `indices` alloc
+
