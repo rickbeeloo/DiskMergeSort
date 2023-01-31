@@ -2,3 +2,8 @@ name = "DiskMergeSort"
 uuid = "71c77081-9a92-4abc-a65f-a6128f5638c0"
 authors = ["codegodz <biobeeloo@gmail.com>"]
 version = "0.1.0"
+
+[deps]
+DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
+Disko = "ebfb334f-8050-4c5c-88ef-d0fc54be32d5"
+Mmap = "a63ad114-7e13-5084-954f-fe012c677804"
