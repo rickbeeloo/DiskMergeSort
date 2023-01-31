@@ -64,14 +64,16 @@ function kway_mmap_merge(files::Vector{String}, output_file::String, type::T ; u
     handles = [open(f,"r") for f in files]
     # We calculate the mmap size based on the provided type variable
     sizes = [Int64(filesize(f)/sizeof(type)) for f in files]
+    total_size = sum(sizes)
     maps = [mmap(handles[i], Vector{type}, sizes[i]) for i in eachindex(files)]
     # Allocate the output size
     out_handle = open(output_file, "w+")
-    out_map = mmap(out_handle, Vector{type}, sum(sizes))
+    out_map = mmap(out_handle, Vector{type}, total_size)
     # Now use the kway_merge to join the data 
     use_heap ? kway_heap_merge(maps, out_map) : kway_merge(maps, out_map)
     map(close, handles)
     close(out_handle)
+    return total_size
 end
 
 function kway_disk_merge(files::Vector{String}, output_file::String, buffer_size::Int, type::DataType; use_heap::Bool = false)
