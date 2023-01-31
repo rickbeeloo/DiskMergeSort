@@ -58,12 +58,12 @@ function kway_heap_merge(vecs::Union{AbstractVector{Vector{T}}, AbstractVector{D
 end
 
 # Overload of method below to also directly allow passing mmaps
-function kway_mmap_merge(maps::AbstractVector{Vector{Int64}}, output_file::String, type::T ; use_heap::Bool = false) where T <:DataType
+function kway_mmap_merge(maps::AbstractVector{Vector{Int64}}, output_file::String; use_heap::Bool = false) where T <:DataType
     # We calculate the mmap size based on the provided type variable
     total_size = sum(map(length, maps))
     # Allocate the output size
     out_handle = open(output_file, "w+")
-    out_map = mmap(out_handle, Vector{type}, total_size)
+    out_map = @inbounds mmap(out_handle, Vector{eltype(maps[1])}, total_size)
     # Now use the kway_merge to join the data 
     use_heap ? kway_heap_merge(maps, out_map) : kway_merge(maps, out_map)
     close(out_handle)
