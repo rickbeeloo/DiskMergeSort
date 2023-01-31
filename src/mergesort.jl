@@ -5,6 +5,7 @@ using Disko
 
 function kway_merge(vecs::Union{AbstractVector{Vector{T}}, AbstractVector{Disko.DiskoVector}}, output::AbstractVector{T}) where T <: Integer
     # Create an array of indices, one for each input vector
+    println("Sort input: ", vecs)
     indices =  Vector{Int64}(undef, length(vecs))
     type_max = @inbounds typemax(eltype(vecs[1]))
     output_idx = 1
