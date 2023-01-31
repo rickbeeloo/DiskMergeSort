@@ -98,7 +98,16 @@ function full_bench()
 
 end
 
-full_bench()
+function still_working() 
+  x = [1, 100, 200]
+  y = [2, 50000]
+  out = zeros(Int64, 5)
+  kway_merge([x,y], out)
+  println(out)
+
+end
+
+still_working()
 
 
 # Major (requiring I/O) page faults: 261839
