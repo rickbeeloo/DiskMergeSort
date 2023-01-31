@@ -66,7 +66,6 @@ function kway_mmap_merge(maps::AbstractVector{Vector{Int64}}, output_file::Strin
     out_map = mmap(out_handle, Vector{type}, total_size)
     # Now use the kway_merge to join the data 
     use_heap ? kway_heap_merge(maps, out_map) : kway_merge(maps, out_map)
-    map(close, handles)
     close(out_handle)
     return total_size
 end
@@ -85,6 +84,7 @@ function kway_mmap_merge(files::Vector{String}, output_file::String, type::T ; u
     out_map = mmap(out_handle, Vector{type}, total_size)
     # Now use the kway_merge to join the data 
     use_heap ? kway_heap_merge(maps, out_map) : kway_merge(maps, out_map)
+    map(close, handles)
     close(out_handle)
     return total_size
 end
