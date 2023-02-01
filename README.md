@@ -14,8 +14,9 @@
     kway_mmap_merge(files, "out.bin", Int64, use_heap=true)
     kway_disk_merge(files, "out.bin", 10_000, Int64, use_heap=true) 
     kway_frequency_merge(files, "tmp/", Int64, freq_cut_off = 100 )
+    kway_frequency_merge(number_vectors, freq_vectors, "tmp/", freq_cut_off = 100 )
 ```
-here `10_000` is the buffer size passed to [Disko](https://github.com/rickbeeloo/Disko). `use_heap` is false by default, when true this will use the Julia minBinaryHeap. `kway_frequency_merge` is a **special implementation** as I discussed [here](https://cs.stackexchange.com/questions/157084/data-structure-to-estimate-the-frequency-of-low-frequency-elements "here"). It uses a merge sort to find low frequency numbers in a collection of vectors. In other words, it filters out numbers with a frequency `<cut-off` while merging the arrays. This is much more cache-friendly than hashing, like hashmap counters, to achieve the same result. 
+here `10_000` is the buffer size passed to [Disko](https://github.com/rickbeeloo/Disko). `use_heap` is false by default, when true this will use the Julia minBinaryHeap. `kway_frequency_merge` is a **special implementation** as I discussed [here](https://cs.stackexchange.com/questions/157084/data-structure-to-estimate-the-frequency-of-low-frequency-elements "here"). It uses a merge sort to find low frequency numbers in a collection of vectors. In other words, it filters out numbers with a frequency `<cut-off` while merging the arrays. This is much more cache-friendly than hashing, like hashmap counters, to achieve the same result. Now also support passing with existing frequency vectors - nice to accumulate over threads.
 
 
 ----
