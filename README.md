@@ -8,13 +8,18 @@
 
 #### How to use 
 ```Julia
-    files = ["data1.bin", "data2.bin", "data3.bin"]
+    files = ["data1.bin", "data2.bin", "data3.bin"] 
     kway_mmap_merge(files, "out.bin", Int64)
     kway_disk_merge(files, "out.bin", 10_000, Int64)
     kway_mmap_merge(files, "out.bin", Int64, use_heap=true)
     kway_disk_merge(files, "out.bin", 10_000, Int64, use_heap=true) 
-    kway_frequency_merge(files, "tmp/", Int64, freq_cut_off = 100 )
-    kway_frequency_merge(number_vectors, freq_vectors, "tmp/", freq_cut_off = 100 )
+
+    numbers = [ [1,2,10], [2, 8, 100, 200] ]
+    freqs    = [ UInt8[], UInt8[10, 5, 9, 1] ]
+    kway_frequency_merge(files, "tmp/", Int64, freq_cut_off = 10 )
+    kway_frequency_merge(numbers, freqs, "tmp/", freq_cut_off = 10 ) 
+    # [1, 8, 10, 100, 200]  numbers
+    # [1, 5, 1, 9, 1]       frequencies, 2 got filered out 11 > 10
 ```
 here `10_000` is the buffer size passed to [Disko](https://github.com/rickbeeloo/Disko). `use_heap` is false by default, when true this will use the Julia minBinaryHeap. `kway_frequency_merge` is a **special implementation** as I discussed [here](https://cs.stackexchange.com/questions/157084/data-structure-to-estimate-the-frequency-of-low-frequency-elements "here"). It uses a merge sort to find low frequency numbers in a collection of vectors. In other words, it filters out numbers with a frequency `<cut-off` while merging the arrays. This is much more cache-friendly than hashing, like hashmap counters, to achieve the same result. Now also support passing with existing frequency vectors - nice to accumulate over threads.
 

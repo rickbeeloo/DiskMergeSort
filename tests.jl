@@ -103,10 +103,12 @@ function still_working()
   x = Int64[1,2,10, 10]
   y = Int64[5, 5, 8, 10]
 
-  freq_x = UInt8[5, 1, 8, 9]
-  freq_y = UInt8[]
+  numbers = [ [1,2,10], [2, 8, 100, 200] ]
+  freq    = [ UInt8[], UInt8[10, 5, 9, 1] ]
 
-  @btime kway_frequency_merge( [$x,$y], [$freq_x, $freq_y], "data/", freq_cut_off=10)
+
+  numbs, freqs = kway_frequency_merge( numbers, freq, "data/", freq_cut_off=10)
+  println(numbs, " ", [Int(x) for x in freqs])
 
   #println(numb_v)
   #println([Int(x) for x in freq_v])
