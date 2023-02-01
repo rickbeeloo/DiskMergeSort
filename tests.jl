@@ -99,15 +99,23 @@ function full_bench()
 end
 
 function still_working() 
-  x = [1, 100, 200]
-  y = [2, 50000]
-  out = zeros(Int64, 5)
-  kway_merge([x,y], out)
-  println(out)
+
+  x = Int64[1,2,10, 10]
+  y = Int64[5, 5, 8, 10]
+
+  freq_x = UInt8[5, 1, 8, 9]
+  freq_y = UInt8[]
+
+  @btime kway_frequency_merge( [$x,$y], [$freq_x, $freq_y], "data/", freq_cut_off=10)
+
+  #println(numb_v)
+  #println([Int(x) for x in freq_v])
 
 end
 
+
 still_working()
+
 
 
 # Major (requiring I/O) page faults: 261839

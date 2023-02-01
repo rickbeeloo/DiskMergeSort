@@ -99,6 +99,70 @@ function kway_disk_merge(files::Vector{String}, output_file::String, buffer_size
     close(out_handle)
 end
 
+# Sometimes we already have existing frequency vectors
+function kway_frequency_merge(number_vects::Vector{Vector{Int64}}, freq_vects::Vector{Vector{UInt8}}, tmp_dir::String ; freq_cut_off=100)
+    # Length of vectors should be equal
+    length(number_vects) == length(freq_vects) || error("Length of number vector != freq vector")
+    isdir(tmp_dir) || error("This is not a dir")
+    freq_cut_off <= typemax(UInt8)
+
+    # Calculate the total length  and allocate output
+    total_size = sum(map(length, number_vects))
+    number_handle = open(joinpath(tmp_dir, "numbers.bin"), "w+")
+    freq_handle = open(joinpath(tmp_dir, "freq.bin"), "w+")
+    number_map = mmap(number_handle, Vector{Int64}, total_size)
+    freq_map = mmap(freq_handle, Vector{UInt8}, total_size)
+
+    # Start the kway merge 
+    indices =  ones(Int64, length(number_vects)) 
+    type_max = @inbounds typemax(eltype(number_vects[1]))
+    output_idx = 1
+
+    @inbounds while true
+        # Find the next smallest element across all input vectors
+        min_val = type_max
+        min_vec_idx = 0
+        cur_freq = 0
+
+        # Iterate over the input arrays to find the minimum value 
+        for i in eachindex(number_vects)
+            if indices[i] <= length(number_vects[i]) && number_vects[i][indices[i]] <= min_val
+                min_val = number_vects[i][indices[i]]
+                min_vec_idx = i
+            end
+        end
+        
+        # We are done if we cant find a smaller value anymore
+        min_val == type_max && break
+        
+        # Check if we aleady have a frequency for this position, if not = 1
+        cur_freq = length(freq_vects[min_vec_idx]) > 0 ? freq_vects[min_vec_idx][indices[min_vec_idx]] : 1
+
+        if number_map[output_idx-1] == min_val
+            # Check if we already have a count 
+            freq_map[output_idx-1] += cur_freq
+
+            # Should we discard it?
+            if freq_map[output_idx-1] > freq_cut_off
+                output_idx -= 1 # Move back slot
+            end
+
+        else 
+            number_map[output_idx] = min_val
+            freq_map[output_idx] = cur_freq
+            output_idx += 1
+        end
+
+        # Increment the index for the input vector that contained the smallest element
+        indices[min_vec_idx] += 1
+    end
+    
+
+    close(freq_handle)
+    close(number_handle)
+
+    return view(number_map, 1:output_idx-1), view(freq_map,1:output_idx-1)
+end
 
 function kway_frequency_merge(files::Vector{String}, tmp_dir::String, type::DataType ; freq_cut_off::Int = 100 )
     # When merging two arrays we can use the fact that these are sorted to deduplicate arrays. Instead of deduplicating we will use 
@@ -164,3 +228,5 @@ function kway_frequency_merge(files::Vector{String}, tmp_dir::String, type::Data
 
     return view(number_map, 1:output_idx-1), view(freq_map,1:output_idx-1)
 end
+
+
